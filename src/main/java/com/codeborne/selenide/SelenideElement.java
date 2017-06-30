@@ -32,15 +32,22 @@ public interface SelenideElement extends WebElement, FindsByLinkText, FindsById,
   void followLink();
 
   /**
-   * <p>Clear the text field, enter given text and trigger "change" event.</p>
-   * <p>
-   * Implementation details: this is the same as <pre>
-   *   1. WebElement.clear()
-   *   2. WebElement.sendKeys(text)
-   *   3. Trigger change event</pre>
-   * </p>
    *
-   * @param text Any text to enter into the text field.
+   * <b>Implementation details:</b>
+   *
+   * <p>If Configuration.versatileSetValue is true, can work as 'selectOptionByValue', 'selectRadio'</p>
+   *
+   * <p>If Configuration.fastSetValue is true, sets value by javascript instead of using Selenium built-in "sendKey" function
+   * and trigger "focus", "keydown", "keypress", "input", "keyup", "change" events.
+   *
+   * <p>In other case behavior will be:
+   * <pre>
+   * 1. WebElement.clear()
+   * 2. WebElement.sendKeys(text)
+   * 3. Trigger change event
+   * </pre>
+   *
+   * @param text Any text to enter into the text field or set by value for select/radio.
    *
    * @see com.codeborne.selenide.commands.SetValue
    */
@@ -454,6 +461,23 @@ public interface SelenideElement extends WebElement, FindsByLinkText, FindsById,
   SelenideElement $(By selector, int index);
 
   /**
+   * <p>Locates the first matching element inside given element using xpath locator</p>
+   * ATTENTION! This method doesn't start any search yet!
+   * <p>Short form of {@code webElement.findElement(By.xpath(xpathLocator))}</p>
+   *
+   * @see com.codeborne.selenide.commands.FindByXpath
+   */
+  SelenideElement $x(String xpath);
+
+  /**
+   * <p>Locates the Nth matching element inside given element using xpath locator</p>
+   * ATTENTION! This method doesn't start any search yet!
+   *
+   * @see com.codeborne.selenide.commands.FindByXpath
+   */
+  SelenideElement $x(String xpath, int index);
+
+  /**
    * <p>
    * Short form of {@code webDriver.findElements(thisElement, By.cssSelector(cssSelector))}
    * </p>
@@ -493,6 +517,21 @@ public interface SelenideElement extends WebElement, FindsByLinkText, FindsById,
    * Same as {@link #findAll(By)}
    */
   ElementsCollection $$(By selector);
+
+  /**
+   * <p>
+   * Short form of {@code webDriver.findElements(thisElement, By.xpath(xpath))}
+   * </p>
+   * ATTENTION! This method doesn't start any search yet!
+   * <p>
+   * For example, {@code $("#multirowTable").$$x("./input").shouldHave(size(2));}
+   * </p>
+   *
+   * @return list of elements inside given element matching given xpath locator
+   *
+   * @see com.codeborne.selenide.commands.FindAllByXpath
+   */
+  ElementsCollection $$x(String xpath);
 
   /**
    * <p>Upload file into file upload field. File is searched from classpath.</p>
@@ -597,6 +636,12 @@ public interface SelenideElement extends WebElement, FindsByLinkText, FindsById,
    * @see com.codeborne.selenide.commands.DownloadFile
    */
   File download() throws FileNotFoundException;
+
+  /**
+   * Return criteria by which this element is located
+   * @return e.g. "#multirowTable.findBy(text 'INVALID-TEXT')/valid-selector"
+   */
+  String getSearchCriteria();
 
   /**
    * @return the original Selenium WebElement wrapped by this object

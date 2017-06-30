@@ -1,9 +1,36 @@
 == Changelog
 
-=== 4.4 (preliminary release date is March 2017)
+=== 4.5.1 (released 27.06.2017)
+* #484 added method $.getSearchCriteria()
+* #484 fixed performance issue: Selenide tried to log collections' parent WebElement without waiting for it
+
+=== 4.5 (released 26.06.2017)
+* Performance improvement of method `$.setValue()` -- thanks to Alexander Popov
+* #549 Selenide waits too much for collections
+* Add methods $().$x and $().$$x -- thanks to Oleksii Cherevatyi 
+* Fix support for Opera driver -- thanks to Roman Marinsky
+* Remove spam from logs: `INFO: Close proxy server: 24 -> null` -- thanks to Andrew Zakordonets 
+* upgrade to org.littleshoot:littleproxy:1.1.2
+* upgrade to phantomjsdriver 1.4.3
+* added many unit tests for Selenide itself -- thanks to Andrew Zakordonets
+
+=== 4.4.3 (released 25.04.2017)
+* upgrade to selenium-java 3.4.0
+
+=== 4.4.2 (released 30.03.2017)
+* #510 fix closing windows in `$.download()`
+
+=== 4.4.1 (released 28.03.2017)
+* Add workaround for invalid resolving of `selenium-api` dependency by Maven
+
+=== 4.4 (released 27.03.2017)
 * #479 Added methods `clearBrowserCookies()` and `clearBrowserLocalStorage()`
-* upgrade to selenium-java 3.2.0
+* #497 Added methods `$x("//div")`, `$$x("//div")` for finding elements by xpath 
+* #457 fix performance degradation in parallel tests
+* #494 fix $.toString() on Android driver
+* upgrade to selenium-java 3.3.1
 * upgrade to phantomjsdriver 1.4.1
+* Upgrade to htmlunit 2.24
 
 === 4.3 (Released 09.02.2017)
 * System properties names aligned with Configuration fields. e.g. Configuration.someProp always has selenide.someProp equivalent (old names still supported for backward compatibility)

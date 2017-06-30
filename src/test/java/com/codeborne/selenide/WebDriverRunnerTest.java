@@ -20,8 +20,6 @@ import static com.codeborne.selenide.WebDriverRunner.FIREFOX;
 import static com.codeborne.selenide.WebDriverRunner.HTMLUNIT;
 import static java.lang.Thread.currentThread;
 import static org.junit.Assert.assertSame;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class WebDriverRunnerTest {
@@ -30,7 +28,7 @@ public class WebDriverRunnerTest {
   @Rule
   public MockWebdriverContainer mockWebdriverContainer = new MockWebdriverContainer();
 
-  URL url = currentThread().getContextClassLoader().getResource("page_with_selects_without_jquery.html");
+  URL url = currentThread().getContextClassLoader().getResource("start_page.html");
 
   @Before 
   public void resetWebDriverContainer() {

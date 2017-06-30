@@ -202,8 +202,8 @@ public class WebDriverFactory {
 
     DesiredCapabilities capabilities = createCommonCapabilities(proxy);
     myProfile = transferFirefoxProfileFromSystemProperties(myProfile, "firefoxprofile.");
-    capabilities.setCapability(FirefoxDriver.PROFILE, myProfile);
     capabilities.setCapability("marionette", false);
+    capabilities.setCapability(FirefoxDriver.PROFILE, myProfile);
     return capabilities;
   }
 
@@ -214,7 +214,7 @@ public class WebDriverFactory {
   }
 
   protected WebDriver createHtmlUnitDriver(Proxy proxy) {
-    DesiredCapabilities capabilities = DesiredCapabilities.htmlUnitWithJs();
+    DesiredCapabilities capabilities = DesiredCapabilities.htmlUnit();
     capabilities.merge(createCommonCapabilities(proxy));
     capabilities.setCapability(HtmlUnitDriver.INVALIDSELECTIONERROR, true);
     capabilities.setCapability(HtmlUnitDriver.INVALIDXPATHERROR, false);
@@ -241,7 +241,7 @@ public class WebDriverFactory {
   }
 
   protected WebDriver createOperaDriver(Proxy proxy) {
-    return createInstanceOf("com.opera.core.systems.OperaDriver", proxy);
+    return createInstanceOf("org.openqa.selenium.opera.OperaDriver", proxy);
   }
 
   protected WebDriver createSafariDriver(Proxy proxy) {

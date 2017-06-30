@@ -18,14 +18,12 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.codeborne.selenide.Configuration.dismissModalDialogs;
-import static com.codeborne.selenide.Configuration.timeout;
+import static com.codeborne.selenide.Configuration.*;
 import static com.codeborne.selenide.WebDriverRunner.*;
 import static com.codeborne.selenide.impl.WebElementWrapper.wrap;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.openqa.selenium.support.ui.ExpectedConditions.alertIsPresent;
 
 /**
  * The main starting point of Selenide.
@@ -52,14 +50,14 @@ public class Selenide {
    *   In this case, it's prepended by baseUrl
    */
   public static void open(String relativeOrAbsoluteUrl) {
-    open(relativeOrAbsoluteUrl, "", "" , "");
+    open(relativeOrAbsoluteUrl, "", "", "");
   }
 
   /**
    * @see Selenide#open(String)
    */
   public static void open(URL absoluteUrl) {
-    open(absoluteUrl, "", "" , "");
+    open(absoluteUrl, "", "", "");
   }
 
   /**
@@ -241,6 +239,16 @@ public class Selenide {
   }
 
   /**
+   * Locates the first element matching given XPATH expression
+   * ATTENTION! This method doesn't start any search yet!
+   * @param xpathExpression any XPATH expression //*[@id='value'] //E[contains(@A, 'value')]
+   * @return SelenideElement which locates elements via XPath
+   */
+  public static SelenideElement $x(String xpathExpression) {
+    return getElement(By.xpath(xpathExpression));
+  }
+
+  /**
    * Locates the first element matching given CSS selector
    * ATTENTION! This method doesn't start any search yet!
    * @param seleniumSelector any Selenium selector like By.id(), By.name() etc.
@@ -355,6 +363,19 @@ public class Selenide {
    */
   public static ElementsCollection $$(String cssSelector) {
     return new ElementsCollection(new BySelectorCollection(By.cssSelector(cssSelector)));
+  }
+
+  /**
+   * Locates all elements matching given XPATH expression.
+   * ATTENTION! This method doesn't start any search yet!
+   * Methods returns an ElementsCollection which is a list of WebElement objects that can be iterated,
+   * and at the same time is implementation of WebElement interface,
+   * meaning that you can call methods .sendKeys(), click() etc. on it.
+   * @param xpathExpression any XPATH expression //*[@id='value'] //E[contains(@A, 'value')]
+   * @return ElementsCollection which locates elements via XPath
+   */
+  public static ElementsCollection $$x(String xpathExpression) {
+    return new ElementsCollection(new BySelectorCollection(By.xpath(xpathExpression)));
   }
 
   /**
@@ -499,7 +520,7 @@ public class Selenide {
    */
   public static String confirm(String expectedDialogText) {
     if (!doDismissModalDialogs()) {
-      Alert alert = Wait().until(alertIsPresent());
+      Alert alert = switchTo().alert();
       String actualDialogText = alert.getText();
       alert.accept();
       checkDialogText(expectedDialogText, actualDialogText);
@@ -527,7 +548,7 @@ public class Selenide {
    */
   public static String dismiss(String expectedDialogText) {
     if (!doDismissModalDialogs()) {
-      Alert alert = Wait().until(alertIsPresent());
+      Alert alert = switchTo().alert();
       String actualDialogText = alert.getText();
       alert.dismiss();
       checkDialogText(expectedDialogText, actualDialogText);
@@ -632,7 +653,10 @@ public class Selenide {
    * @return list of error messages. Returns empty list if webdriver is not started properly.
    */
   public static List<String> getJavascriptErrors() {
-    if (!hasWebDriverStarted()) {
+    if (!captureJavascriptErrors) {
+      return emptyList();
+    }
+    else if (!hasWebDriverStarted()) {
       return emptyList();
     }
     else if (!supportsJavascript()) {
@@ -653,7 +677,7 @@ public class Selenide {
         return asList(errors.toString());
       }
     } catch (WebDriverException | UnsupportedOperationException cannotExecuteJs) {
-      log.severe(cannotExecuteJs.toString());
+      log.warning(cannotExecuteJs.toString());
       return emptyList();
     } 
   }
