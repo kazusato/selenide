@@ -388,7 +388,7 @@ public class ScreenShotLaboratory {
 		  } else {
 			  int residualHeight = scrollHeight;
 			  int i = 0;
-			  while (residualHeight > innerHeight) {
+			  while (residualHeight >= innerHeight) {
 				  BufferedImage imageParts = ImageIO.read(ts.getScreenshotAs(FILE));
 				  g.drawImage(imageParts, 0, innerHeight * i, null);
 				  residualHeight -= innerHeight;
