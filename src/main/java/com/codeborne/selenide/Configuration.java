@@ -348,4 +348,8 @@ public class Configuration {
    */
   public static FileDownloadMode fileDownload = FileDownloadMode.valueOf(
           System.getProperty("selenide.fileDownload", HTTPGET.name()));
+  
+  public static boolean screenshotsWithScroll =
+		  Boolean.parseBoolean(System.getProperty("selenide.screenshotsWithScroll", "false"));
+  
 }

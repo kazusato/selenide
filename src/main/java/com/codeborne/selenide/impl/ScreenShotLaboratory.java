@@ -8,12 +8,15 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.remote.UnreachableBrowserException;
 
 import javax.imageio.ImageIO;
+
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -35,6 +38,8 @@ public class ScreenShotLaboratory {
   protected List<File> allScreenshots = new ArrayList<>();
 
   protected Set<String> printedErrors = new ConcurrentSkipListSet<>();
+  
+  protected List<Class<?>> driversWithScroll = new ArrayList<>();
 
   protected synchronized void printOnce(String action, Throwable error) {
     if (!printedErrors.contains(action)) {
@@ -229,7 +234,14 @@ public class ScreenShotLaboratory {
 
   protected File takeScreenshotImage(TakesScreenshot driver, String fileName) {
     try {
-      File scrFile = driver.getScreenshotAs(FILE);
+      File scrFile;
+      
+      if (Configuration.screenshotsWithScroll && driversWithScroll.contains(driver.getClass())) {
+    	  scrFile = takeScreenshotImageWithScroll((WebDriver) driver, fileName); 
+      } else {
+    	  scrFile = driver.getScreenshotAs(FILE);
+      }
+      
       File imageFile = new File(reportsFolder, fileName + ".png");
       copyFile(scrFile, imageFile);
       return imageFile;
@@ -339,5 +351,64 @@ public class ScreenShotLaboratory {
     } catch (MalformedURLException e) {
       return "file://" + screenshot;
     }
+  }
+  
+  public void setDriversWithScroll(Class<?>... drivers) {
+	  driversWithScroll = Arrays.asList(drivers);
+  }
+  
+  protected File takeScreenshotImageWithScroll(WebDriver driver, String fileName) {
+	  try {
+		  JavascriptExecutor jexec = (JavascriptExecutor) driver;
+		  TakesScreenshot ts = (TakesScreenshot) driver;
+		  
+		  // scroll to top
+		  jexec.executeScript("window.scrollTo(0, 0)");
+		  int innerHeight = Integer.parseInt(String.valueOf(jexec.executeScript(
+				  "return window.innerHeight")));
+		  int innerWidth = Integer.parseInt(String.valueOf(jexec.executeScript(
+				  "return window.innerWidth")));
+		  int scrollHeight = Integer.parseInt(String.valueOf(jexec.executeScript(
+				  "return document.documentElement.scrollHeight")));
+		  
+		  // set the canvas height innetHeight if the actual content is less than the window height
+		  int canvasHeight;
+		  if (innerHeight > scrollHeight) {
+			  canvasHeight = scrollHeight;
+		  } else {
+			  canvasHeight = innerHeight;
+		  }
+		  
+		  BufferedImage img = new BufferedImage(innerWidth, canvasHeight, BufferedImage.TYPE_INT_ARGB);
+		  Graphics g = img.getGraphics();
+		  
+		  if (innerHeight > scrollHeight) {
+			  BufferedImage imageParts = ImageIO.read(ts.getScreenshotAs(FILE));
+			  g.drawImage(imageParts, 0, 0, null);
+		  } else {
+			  int residualHeight = scrollHeight;
+			  int i = 0;
+			  while (residualHeight > innerHeight) {
+				  BufferedImage imageParts = ImageIO.read(ts.getScreenshotAs(FILE));
+				  g.drawImage(imageParts, 0, innerHeight * i, null);
+				  residualHeight -= innerHeight;
+				  i++;
+				  jexec.executeScript("window.scrollTo(0, " + (innerHeight * i) + ")");
+			  }
+			  
+			  // draw the last portion
+			  if (scrollHeight > innerHeight) {
+				  BufferedImage imageParts = ImageIO.read(ts.getScreenshotAs(FILE));
+				  g.drawImage(imageParts, 0, scrollHeight - innerHeight, null);
+			  }
+		  }
+		  
+		  File outputFile = new File(fileName);
+		  ImageIO.write(img, "png", outputFile);
+		  
+		  return outputFile;
+	  } catch (IOException e) {
+		  throw new RuntimeException(e);
+	  }
   }
 }

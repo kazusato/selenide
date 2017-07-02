@@ -62,4 +62,8 @@ public class Screenshots {
   public static File getLastScreenshot() {
     return screenshots.getLastScreenshot();
   }
+  
+  public static void setDriversWithScroll(Class<?>... drivers) {
+	  screenshots.setDriversWithScroll(drivers);
+  }
 }
