@@ -373,7 +373,7 @@ public class ScreenShotLaboratory {
 		  
 		  // set the canvas height innetHeight if the actual content is less than the window height
 		  int canvasHeight;
-		  if (innerHeight > scrollHeight) {
+		  if (scrollHeight > innerHeight) {
 			  canvasHeight = scrollHeight;
 		  } else {
 			  canvasHeight = innerHeight;
